@@ -204,7 +204,7 @@ internal sealed class MainForm : Form
             g.FillPath(brush, path);
 
             g.CompositingMode = CompositingMode.SourceCopy;
-            g.FillRectangle(Brushes.Transparent, 7, 0, 2, 16);
+            g.FillRectangle(Brushes.Transparent, 10, 0, 1, 16);
         }
         return bmp.GetHicon();
     }
