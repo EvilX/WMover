@@ -2,7 +2,7 @@ namespace WMover;
 
 internal sealed class HelpForm : Form
 {
-    public HelpForm()
+    public HelpForm(IReadOnlyList<HotkeyBinding> bindings)
     {
         Text = "WMover — Keyboard Shortcuts";
         FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -24,23 +24,10 @@ internal sealed class HelpForm : Form
         list.Columns.Add("Shortcut", 185);
         list.Columns.Add("Action", 255);
 
-        (string key, string desc)[] shortcuts =
-        [
-            ("Win + ←",          "1/2 width — snap left"),
-            ("Win + →",          "1/2 width — snap right"),
-            ("Ctrl + Win + E",  "2/3 width — snap left"),
-            ("Ctrl + Win + T",  "2/3 width — snap right"),
-            ("Ctrl + Win + R",  "2/3 width — center"),
-            ("Ctrl + Win + D",  "1/3 width — snap left"),
-            ("Ctrl + Win + G",  "1/3 width — snap right"),
-            ("Ctrl + Win + F",  "1/3 width — center"),
-            ("Ctrl + Win + C",  "Center (keep size)"),
-        ];
-
-        foreach (var (key, desc) in shortcuts)
+        foreach (var b in bindings)
         {
-            var item = new ListViewItem(key);
-            item.SubItems.Add(desc);
+            var item = new ListViewItem(b.ShortcutText);
+            item.SubItems.Add(b.Label);
             list.Items.Add(item);
         }
 
@@ -60,6 +47,6 @@ internal sealed class HelpForm : Form
         Controls.Add(list);
         Controls.Add(footer);
 
-        ClientSize = new Size(460, shortcuts.Length * 19 + 66);
+        ClientSize = new Size(460, bindings.Count * 19 + 66);
     }
 }

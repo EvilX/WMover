@@ -9,7 +9,10 @@ internal sealed class MainForm : Form
     private readonly NotifyIcon _trayIcon;
     private readonly ToolStripMenuItem _startupItem;
     private IntPtr _hIcon = IntPtr.Zero;
-    private HelpForm? _helpForm;
+    private SettingsForm? _settingsForm;
+    private AboutForm?    _aboutForm;
+
+    private static List<HotkeyBinding> _bindings = HotkeyBinding.Defaults();
 
     // Static so the GC never collects the delegate while the hook is active
     private static NativeMethods.LowLevelKeyboardProc? _hookProc;
@@ -24,6 +27,8 @@ internal sealed class MainForm : Form
         Size = new Size(1, 1);
         Opacity = 0;
 
+        _bindings = AppSettings.Load();
+
         _startupItem = new ToolStripMenuItem("Run at Windows startup", null, OnStartupToggle)
         {
             Checked = StartupManager.IsEnabled()
@@ -32,8 +37,10 @@ internal sealed class MainForm : Form
         var menu = new ContextMenuStrip();
         menu.Items.Add(_startupItem);
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Help", null, OnHelp);
-        menu.Items.Add("Exit", null, (_, _) => Application.Exit());
+        menu.Items.Add("Settings", null, OnSettings);
+        menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add("About",    null, OnAbout);
+        menu.Items.Add("Exit",     null, (_, _) => Application.Exit());
 
         _trayIcon = new NotifyIcon
         {
@@ -57,12 +64,27 @@ internal sealed class MainForm : Form
         _startupItem.Checked = StartupManager.IsEnabled();
     }
 
-    private void OnHelp(object? sender, EventArgs e)
+    private void OnSettings(object? sender, EventArgs e)
     {
-        if (_helpForm == null || _helpForm.IsDisposed)
-            _helpForm = new HelpForm();
-        _helpForm.BringToFront();
-        _helpForm.Show();
+        if (_settingsForm == null || _settingsForm.IsDisposed)
+        {
+            _settingsForm = new SettingsForm(_bindings);
+            _settingsForm.BindingsSaved += saved =>
+            {
+                _bindings = new List<HotkeyBinding>(saved);
+                AppSettings.Save(_bindings);
+            };
+        }
+        _settingsForm.BringToFront();
+        _settingsForm.Show();
+    }
+
+    private void OnAbout(object? sender, EventArgs e)
+    {
+        if (_aboutForm == null || _aboutForm.IsDisposed)
+            _aboutForm = new AboutForm();
+        _aboutForm.BringToFront();
+        _aboutForm.Show();
     }
 
     private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
@@ -72,42 +94,44 @@ internal sealed class MainForm : Form
         {
             var kb = Marshal.PtrToStructure<NativeMethods.KBDLLHOOKSTRUCT>(lParam);
 
-            bool ctrl = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
-            bool win  = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_LWIN) & 0x8000) != 0 ||
-                        (NativeMethods.GetAsyncKeyState(NativeMethods.VK_RWIN) & 0x8000) != 0;
-
-            if (win)
+            // Settings key-capture mode — Esc cancels, any other key is recorded
+            if (SettingsForm.EscCaptureCallback != null && kb.vkCode == 0x1B)
             {
-                WindowAction? action = null;
-
-                if (ctrl)
+                SettingsForm.EscCaptureCallback();
+                return (IntPtr)1;
+            }
+            if (SettingsForm.KeyCaptureCallback != null)
+            {
+                uint vk = kb.vkCode;
+                bool isMod = vk is 0x5B or 0x5C          // VK_LWIN / VK_RWIN
+                                or 0x11 or 0xA2 or 0xA3  // VK_CONTROL / VK_LCONTROL / VK_RCONTROL
+                                or 0x10 or 0xA0 or 0xA1  // VK_SHIFT / VK_LSHIFT / VK_RSHIFT
+                                or 0x12 or 0xA4 or 0xA5; // VK_MENU / VK_LMENU / VK_RMENU
+                if (!isMod)
                 {
-                    action = kb.vkCode switch
-                    {
-                        0x45 => WindowAction.TwoThirdsLeft,   // E
-                        0x54 => WindowAction.TwoThirdsRight,  // T
-                        0x52 => WindowAction.TwoThirdsCenter, // R
-                        0x44 => WindowAction.OneThirdLeft,    // D
-                        0x47 => WindowAction.OneThirdRight,   // G
-                        0x46 => WindowAction.OneThirdCenter,  // F
-                        0x43 => WindowAction.CenterOnly,      // C
-                        _    => null,
-                    };
+                    bool c = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
+                    bool a = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_MENU)    & 0x8000) != 0;
+                    bool w = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_LWIN)    & 0x8000) != 0 ||
+                             (NativeMethods.GetAsyncKeyState(NativeMethods.VK_RWIN)    & 0x8000) != 0;
+                    SettingsForm.KeyCaptureCallback(c, a, w, vk);
+                    return (IntPtr)1;
                 }
-                else
-                {
-                    action = kb.vkCode switch
-                    {
-                        0x25 => WindowAction.HalfLeft,  // Left arrow
-                        0x27 => WindowAction.HalfRight, // Right arrow
-                        _    => null,
-                    };
-                }
+                return NativeMethods.CallNextHookEx(_hookId, nCode, wParam, lParam);
+            }
 
-                if (action.HasValue)
+            // Normal hotkey processing
+            bool ctrl = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
+            bool alt  = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_MENU)    & 0x8000) != 0;
+            bool win  = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_LWIN)    & 0x8000) != 0 ||
+                        (NativeMethods.GetAsyncKeyState(NativeMethods.VK_RWIN)    & 0x8000) != 0;
+
+            if (ctrl || alt || win)
+            {
+                var binding = _bindings.Find(b => b.Ctrl == ctrl && b.Alt == alt && b.Win == win && b.VkCode == kb.vkCode);
+                if (binding != null)
                 {
-                    WindowManager.Apply(action.Value);
-                    return (IntPtr)1; // suppress — prevents Win system shortcuts from firing
+                    WindowManager.Apply(binding.Action);
+                    return (IntPtr)1;
                 }
             }
         }
@@ -175,12 +199,10 @@ internal sealed class MainForm : Form
             g.Clear(Color.Transparent);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Rounded square filled with foreground colour
             using var path = BuildRoundedRect(new Rectangle(0, 0, 15, 15), 2);
             using var brush = new SolidBrush(fore);
             g.FillPath(brush, path);
 
-            // Cut a 2 px transparent divider down the vertical centre
             g.CompositingMode = CompositingMode.SourceCopy;
             g.FillRectangle(Brushes.Transparent, 7, 0, 2, 16);
         }

@@ -8,8 +8,9 @@ internal static class NativeMethods
     public const int WM_KEYDOWN = 0x0100;
     public const int WM_SYSKEYDOWN = 0x0104;
     public const int VK_CONTROL = 0x11;
-    public const int VK_LWIN = 0x5B;
-    public const int VK_RWIN = 0x5C;
+    public const int VK_MENU    = 0x12; // Alt
+    public const int VK_LWIN    = 0x5B;
+    public const int VK_RWIN    = 0x5C;
     public const uint SWP_NOZORDER = 0x0004;
     public const uint SWP_NOACTIVATE = 0x0010;
     public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
