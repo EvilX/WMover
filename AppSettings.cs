@@ -22,6 +22,7 @@ internal static class AppSettings
                         Action = s.Action,
                         Label  = defaults.First(d => d.Action == s.Action).Label,
                         Ctrl   = s.Ctrl,
+                        Shift  = s.Shift,
                         Alt    = s.Alt,
                         Win    = s.Win,
                         VkCode = s.VkCode,
@@ -39,7 +40,7 @@ internal static class AppSettings
             Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
             var saved = bindings.Select(b => new SavedBinding
             {
-                Action = b.Action, Ctrl = b.Ctrl, Alt = b.Alt, Win = b.Win, VkCode = b.VkCode,
+                Action = b.Action, Ctrl = b.Ctrl, Shift = b.Shift, Alt = b.Alt, Win = b.Win, VkCode = b.VkCode,
             }).ToList();
             File.WriteAllText(_path, JsonSerializer.Serialize(saved,
                 new JsonSerializerOptions { WriteIndented = true }));
@@ -51,6 +52,7 @@ internal static class AppSettings
     {
         public WindowAction Action { get; set; }
         public bool         Ctrl   { get; set; }
+        public bool         Shift  { get; set; }
         public bool         Alt    { get; set; }
         public bool         Win    { get; set; }
         public uint         VkCode { get; set; }

@@ -5,6 +5,7 @@ internal sealed class HotkeyBinding
     public WindowAction Action  { get; set; }
     public string       Label   { get; set; } = "";
     public bool         Ctrl    { get; set; }
+    public bool         Shift   { get; set; }
     public bool         Alt     { get; set; }
     public bool         Win     { get; set; }
     public uint         VkCode  { get; set; }
@@ -14,9 +15,10 @@ internal sealed class HotkeyBinding
         get
         {
             var parts = new List<string>();
-            if (Ctrl) parts.Add("Ctrl");
-            if (Alt)  parts.Add("Alt");
-            if (Win)  parts.Add("Win");
+            if (Ctrl)  parts.Add("Ctrl");
+            if (Shift) parts.Add("Shift");
+            if (Alt)   parts.Add("Alt");
+            if (Win)   parts.Add("Win");
             parts.Add(VkName(VkCode));
             return string.Join(" + ", parts);
         }

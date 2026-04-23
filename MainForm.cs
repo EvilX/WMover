@@ -110,24 +110,26 @@ internal sealed class MainForm : Form
                 if (!isMod)
                 {
                     bool c = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
+                    bool sh= (NativeMethods.GetAsyncKeyState(NativeMethods.VK_SHIFT)   & 0x8000) != 0;
                     bool a = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_MENU)    & 0x8000) != 0;
                     bool w = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_LWIN)    & 0x8000) != 0 ||
                              (NativeMethods.GetAsyncKeyState(NativeMethods.VK_RWIN)    & 0x8000) != 0;
-                    SettingsForm.KeyCaptureCallback(c, a, w, vk);
+                    SettingsForm.KeyCaptureCallback(c, sh, a, w, vk);
                     return (IntPtr)1;
                 }
                 return NativeMethods.CallNextHookEx(_hookId, nCode, wParam, lParam);
             }
 
             // Normal hotkey processing
-            bool ctrl = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
-            bool alt  = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_MENU)    & 0x8000) != 0;
-            bool win  = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_LWIN)    & 0x8000) != 0 ||
-                        (NativeMethods.GetAsyncKeyState(NativeMethods.VK_RWIN)    & 0x8000) != 0;
+            bool ctrl  = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
+            bool shift = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_SHIFT)   & 0x8000) != 0;
+            bool alt   = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_MENU)    & 0x8000) != 0;
+            bool win   = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_LWIN)    & 0x8000) != 0 ||
+                         (NativeMethods.GetAsyncKeyState(NativeMethods.VK_RWIN)    & 0x8000) != 0;
 
-            if (ctrl || alt || win)
+            if (ctrl || shift || alt || win)
             {
-                var binding = _bindings.Find(b => b.Ctrl == ctrl && b.Alt == alt && b.Win == win && b.VkCode == kb.vkCode);
+                var binding = _bindings.Find(b => b.Ctrl == ctrl && b.Shift == shift && b.Alt == alt && b.Win == win && b.VkCode == kb.vkCode);
                 if (binding != null)
                 {
                     WindowManager.Apply(binding.Action);

@@ -7,7 +7,7 @@ internal sealed class SettingsForm : Form
     private readonly Label _statusLabel;
     private int _capturingIndex = -1;
 
-    internal static Action<bool, bool, bool, uint>? KeyCaptureCallback; // (ctrl, alt, win, vk)
+    internal static Action<bool, bool, bool, bool, uint>? KeyCaptureCallback; // (ctrl, shift, alt, win, vk)
     internal static Action? EscCaptureCallback;
 
     internal event Action<IReadOnlyList<HotkeyBinding>>? BindingsSaved;
@@ -108,10 +108,11 @@ internal sealed class SettingsForm : Form
         _statusLabel.Text = $"Press new shortcut for \"{_bindings[index].Label}\"… (Esc to cancel)";
 
         EscCaptureCallback = CancelCapture;
-        KeyCaptureCallback = (ctrl, alt, win, vk) =>
+        KeyCaptureCallback = (ctrl, shift, alt, win, vk) =>
         {
-            if (!ctrl && !alt && !win) return; // require at least one modifier
+            if (!ctrl && !shift && !alt && !win) return;
             _bindings[index].Ctrl   = ctrl;
+            _bindings[index].Shift  = shift;
             _bindings[index].Alt    = alt;
             _bindings[index].Win    = win;
             _bindings[index].VkCode = vk;
