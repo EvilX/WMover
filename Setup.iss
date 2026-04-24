@@ -1,6 +1,6 @@
 [Setup]
 AppName=WMover
-AppVersion=1.1.0
+AppVersion=1.1.1
 AppPublisher=LN
 AppCopyright=Copyright (C) 2025 LN
 PrivilegesRequired=lowest

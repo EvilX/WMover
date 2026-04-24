@@ -28,49 +28,58 @@ internal static class WindowManager
 
         var work = GetWorkArea(hWnd);
         int w = work.Width, h = work.Height, x = work.Left, y = work.Top;
-        int newX, newY, newW, newH;
+
+        // Invisible DWM border: SetWindowPos uses the outer rect, but the visible
+        // edge is inset by bL/bT/bR/bB pixels. Work in visual coordinates here,
+        // then compensate once before calling SetWindowPos.
+        var (bL, bT, bR, bB) = GetBorderInsets(hWnd);
+
+        int vX, vY, vW, vH; // visual (visible) bounds
 
         switch (action)
         {
             case WindowAction.TwoThirdsLeft:
-                (newW, newH, newX, newY) = (w * 2 / 3, h, x, y);
+                (vW, vH, vX, vY) = (w * 2 / 3, h, x, y);
                 break;
             case WindowAction.TwoThirdsRight:
-                newW = w * 2 / 3;
-                (newH, newX, newY) = (h, x + w - newW, y);
+                vW = w * 2 / 3;
+                (vH, vX, vY) = (h, x + w - vW, y);
                 break;
             case WindowAction.TwoThirdsCenter:
-                newW = w * 2 / 3;
-                (newH, newX, newY) = (h, x + (w - newW) / 2, y);
+                vW = w * 2 / 3;
+                (vH, vX, vY) = (h, x + (w - vW) / 2, y);
                 break;
             case WindowAction.OneThirdLeft:
-                (newW, newH, newX, newY) = (w / 3, h, x, y);
+                (vW, vH, vX, vY) = (w / 3, h, x, y);
                 break;
             case WindowAction.OneThirdRight:
-                newW = w / 3;
-                (newH, newX, newY) = (h, x + w - newW, y);
+                vW = w / 3;
+                (vH, vX, vY) = (h, x + w - vW, y);
                 break;
             case WindowAction.OneThirdCenter:
-                newW = w / 3;
-                (newH, newX, newY) = (h, x + (w - newW) / 2, y);
+                vW = w / 3;
+                (vH, vX, vY) = (h, x + (w - vW) / 2, y);
                 break;
             case WindowAction.HalfLeft:
-                (newW, newH, newX, newY) = (w / 2, h, x, y);
+                (vW, vH, vX, vY) = (w / 2, h, x, y);
                 break;
             case WindowAction.HalfRight:
-                newW = w / 2;
-                (newH, newX, newY) = (h, x + w - newW, y);
+                vW = w / 2;
+                (vH, vX, vY) = (h, x + w - vW, y);
                 break;
             case WindowAction.CenterOnly:
                 NativeMethods.GetWindowRect(hWnd, out var rect);
-                (newW, newH) = (Math.Min(rect.Width, w), Math.Min(rect.Height, h));
-                (newX, newY) = (x + (w - newW) / 2, y + (h - newH) / 2);
+                vW = Math.Min(rect.Width  - bL - bR, w);
+                vH = Math.Min(rect.Height - bT - bB, h);
+                (vX, vY) = (x + (w - vW) / 2, y + (h - vH) / 2);
                 break;
             default:
                 return;
         }
 
-        NativeMethods.SetWindowPos(hWnd, IntPtr.Zero, newX, newY, newW, newH,
+        // Convert visual bounds → outer window rect by adding back the border insets
+        NativeMethods.SetWindowPos(hWnd, IntPtr.Zero,
+            vX - bL, vY - bT, vW + bL + bR, vH + bT + bB,
             NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE);
     }
 
@@ -87,6 +96,19 @@ internal static class WindowManager
         var m = mi.rcMonitor;
         return winRect.Left <= m.Left && winRect.Top <= m.Top &&
                winRect.Right >= m.Right && winRect.Bottom >= m.Bottom;
+    }
+
+    // Returns the invisible DWM border widths: (left, top, right, bottom).
+    // GetWindowRect includes these; DWMWA_EXTENDED_FRAME_BOUNDS excludes them.
+    private static (int bL, int bT, int bR, int bB) GetBorderInsets(IntPtr hWnd)
+    {
+        if (NativeMethods.GetWindowRect(hWnd, out var wr) &&
+            NativeMethods.DwmGetWindowAttribute(hWnd, NativeMethods.DWMWA_EXTENDED_FRAME_BOUNDS,
+                out NativeMethods.RECT fr, Marshal.SizeOf<NativeMethods.RECT>()) == 0)
+        {
+            return (fr.Left - wr.Left, fr.Top - wr.Top, wr.Right - fr.Right, wr.Bottom - fr.Bottom);
+        }
+        return (0, 0, 0, 0);
     }
 
     private static Rectangle GetWorkArea(IntPtr hWnd)

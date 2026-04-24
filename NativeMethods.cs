@@ -16,6 +16,7 @@ internal static class NativeMethods
     public const uint SWP_NOACTIVATE = 0x0010;
     public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
     public const int SW_RESTORE = 9;
+    public const uint DWMWA_EXTENDED_FRAME_BOUNDS = 9;
 
     public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -91,4 +92,8 @@ internal static class NativeMethods
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool DestroyIcon(IntPtr hIcon);
+
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmGetWindowAttribute(
+        IntPtr hwnd, uint dwAttribute, out RECT pvAttribute, int cbAttribute);
 }
