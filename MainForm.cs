@@ -20,6 +20,16 @@ internal sealed class MainForm : Form
 
     private const int WM_SETTINGCHANGE = 0x001A;
 
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            var cp = base.CreateParams;
+            cp.ExStyle |= 0x00000080; // WS_EX_TOOLWINDOW — hides from Alt+Tab
+            return cp;
+        }
+    }
+
     public MainForm()
     {
         ShowInTaskbar = false;
@@ -66,16 +76,17 @@ internal sealed class MainForm : Form
 
     private void OnSettings(object? sender, EventArgs e)
     {
-        if (_settingsForm == null || _settingsForm.IsDisposed)
+        if (_settingsForm is { IsDisposed: false, Visible: true })
         {
-            _settingsForm = new SettingsForm(_bindings);
-            _settingsForm.BindingsSaved += saved =>
-            {
-                _bindings = new List<HotkeyBinding>(saved);
-                AppSettings.Save(_bindings);
-            };
+            _settingsForm.BringToFront();
+            return;
         }
-        _settingsForm.BringToFront();
+        _settingsForm = new SettingsForm(_bindings);
+        _settingsForm.BindingsSaved += saved =>
+        {
+            _bindings = new List<HotkeyBinding>(saved);
+            AppSettings.Save(_bindings);
+        };
         _settingsForm.Show();
     }
 

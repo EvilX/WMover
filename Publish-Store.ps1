@@ -16,7 +16,7 @@
     .\Publish-Store.ps1 -Version 1.2.0.0 -PublisherCN "CN=Your-Partner-Center-CN"
 #>
 param(
-    [string]$Version = "1.0.0.0",
+    [string]$Version = "1.1.0.0",
     [string]$PublisherCN = "CN=E6AE4792-1CF2-4206-9D79-A11A16CD8C6A"
 )
 

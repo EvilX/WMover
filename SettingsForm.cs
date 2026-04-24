@@ -16,7 +16,8 @@ internal sealed class SettingsForm : Form
     {
         _bindings = current.Select(b => new HotkeyBinding
         {
-            Action = b.Action, Label = b.Label, Ctrl = b.Ctrl, Win = b.Win, VkCode = b.VkCode,
+            Action = b.Action, Label = b.Label,
+            Ctrl = b.Ctrl, Shift = b.Shift, Alt = b.Alt, Win = b.Win, VkCode = b.VkCode,
         }).ToList();
 
         Text = "WMover — Settings";
@@ -155,6 +156,8 @@ internal sealed class SettingsForm : Form
         for (int i = 0; i < _bindings.Count; i++)
         {
             _bindings[i].Ctrl   = defaults[i].Ctrl;
+            _bindings[i].Shift  = defaults[i].Shift;
+            _bindings[i].Alt    = defaults[i].Alt;
             _bindings[i].Win    = defaults[i].Win;
             _bindings[i].VkCode = defaults[i].VkCode;
         }
