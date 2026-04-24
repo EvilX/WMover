@@ -20,7 +20,7 @@ internal static class WindowManager
     public static void Apply(WindowAction action)
     {
         var hWnd = NativeMethods.GetForegroundWindow();
-        if (hWnd == IntPtr.Zero || IsFullscreen(hWnd))
+        if (hWnd == IntPtr.Zero || IsFullscreen(hWnd) || IsTopmost(hWnd))
             return;
 
         if (NativeMethods.IsZoomed(hWnd))
@@ -82,6 +82,9 @@ internal static class WindowManager
             vX - bL, vY - bT, vW + bL + bR, vH + bT + bB,
             NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE);
     }
+
+    private static bool IsTopmost(IntPtr hWnd) =>
+        ((uint)NativeMethods.GetWindowLongPtr(hWnd, NativeMethods.GWL_EXSTYLE) & NativeMethods.WS_EX_TOPMOST) != 0;
 
     private static bool IsFullscreen(IntPtr hWnd)
     {

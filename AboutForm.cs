@@ -27,7 +27,7 @@ internal sealed class AboutForm : Form
         });
         panel.Controls.Add(new Label
         {
-            Text = "Version 1.1.0",
+            Text = "Version 1.1.1",
             AutoSize = true,
             Margin = new Padding(0, 4, 0, 0),
         });
@@ -39,7 +39,7 @@ internal sealed class AboutForm : Form
         });
         panel.Controls.Add(new Label
         {
-            Text = "© 2026 LN",
+            Text = "© 2026 Leonid Nasedkin",
             AutoSize = true,
             Margin = new Padding(0, 4, 0, 0),
         });

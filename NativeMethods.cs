@@ -17,6 +17,8 @@ internal static class NativeMethods
     public const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
     public const int SW_RESTORE = 9;
     public const uint DWMWA_EXTENDED_FRAME_BOUNDS = 9;
+    public const int  GWL_EXSTYLE    = -20;
+    public const uint WS_EX_TOPMOST  = 0x00000008;
 
     public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -92,6 +94,9 @@ internal static class NativeMethods
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool DestroyIcon(IntPtr hIcon);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+    public static extern nint GetWindowLongPtr(IntPtr hWnd, int nIndex);
 
     [DllImport("dwmapi.dll")]
     public static extern int DwmGetWindowAttribute(
