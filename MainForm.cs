@@ -35,7 +35,6 @@ internal sealed class MainForm : Form
         ShowInTaskbar = false;
         FormBorderStyle = FormBorderStyle.None;
         Size = new Size(1, 1);
-        Opacity = 0;
 
         _bindings = AppSettings.Load();
 
@@ -141,21 +140,20 @@ internal sealed class MainForm : Form
             if (ctrl || shift || alt || win)
             {
                 var binding = _bindings.Find(b => b.Ctrl == ctrl && b.Shift == shift && b.Alt == alt && b.Win == win && b.VkCode == kb.vkCode);
-                if (binding != null)
-                {
-                    WindowManager.Apply(binding.Action);
+                if (binding != null && WindowManager.Apply(binding.Action))
                     return (IntPtr)1;
-                }
             }
         }
 
         return NativeMethods.CallNextHookEx(_hookId, nCode, wParam, lParam);
     }
 
-    protected override void OnLoad(EventArgs e)
+    // Never show the form — creates the HWND for the message pump without
+    // using a layered/transparent window, which can fail in MSIX context.
+    protected override void SetVisibleCore(bool value)
     {
-        base.OnLoad(e);
-        Hide();
+        if (!IsHandleCreated) CreateHandle();
+        base.SetVisibleCore(false);
     }
 
     protected override void WndProc(ref Message m)
@@ -171,18 +169,29 @@ internal sealed class MainForm : Form
 
     private void RefreshIcon()
     {
-        var newHIcon = CreateHIcon();
-        var oldHIcon = _hIcon;
-        _trayIcon.Icon = Icon.FromHandle(newHIcon);
-        _hIcon = newHIcon;
-        if (oldHIcon != IntPtr.Zero)
-            NativeMethods.DestroyIcon(oldHIcon);
+        try
+        {
+            var newHIcon = CreateHIcon();
+            var oldHIcon = _hIcon;
+            _trayIcon.Icon = Icon.FromHandle(newHIcon);
+            _hIcon = newHIcon;
+            if (oldHIcon != IntPtr.Zero)
+                NativeMethods.DestroyIcon(oldHIcon);
+        }
+        catch { }
     }
 
     private Icon BuildIcon()
     {
-        _hIcon = CreateHIcon();
-        return Icon.FromHandle(_hIcon);
+        try
+        {
+            _hIcon = CreateHIcon();
+            return Icon.FromHandle(_hIcon);
+        }
+        catch
+        {
+            return SystemIcons.Application;
+        }
     }
 
     protected override void Dispose(bool disposing)
@@ -219,7 +228,10 @@ internal sealed class MainForm : Form
             g.CompositingMode = CompositingMode.SourceCopy;
             g.FillRectangle(Brushes.Transparent, 10, 0, 1, 16);
         }
-        return bmp.GetHicon();
+        var hIcon = bmp.GetHicon();
+        if (hIcon == IntPtr.Zero)
+            throw new InvalidOperationException("GDI+ GetHicon failed.");
+        return hIcon;
     }
 
     private static GraphicsPath BuildRoundedRect(Rectangle r, int radius)

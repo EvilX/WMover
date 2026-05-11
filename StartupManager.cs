@@ -9,8 +9,12 @@ internal static class StartupManager
 
     public static bool IsEnabled()
     {
-        using var key = Registry.CurrentUser.OpenSubKey(RunKey);
-        return key?.GetValue(AppName) != null;
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(RunKey);
+            return key?.GetValue(AppName) != null;
+        }
+        catch { return false; }
     }
 
     public static void Toggle()

@@ -27,7 +27,7 @@ internal sealed class AboutForm : Form
         });
         panel.Controls.Add(new Label
         {
-            Text = "Version 1.1.1",
+            Text = "Version 1.1.7",
             AutoSize = true,
             Margin = new Padding(0, 4, 0, 0),
         });

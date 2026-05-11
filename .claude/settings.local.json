@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& 'c:\\\\Users\\\\leoni\\\\OneDrive\\\\Documents\\\\Projects\\\\Magnet\\\\Publish-Setup.ps1' -Version \"1.1.1\")",
+      "PowerShell(& 'c:\\\\Users\\\\leoni\\\\OneDrive\\\\Documents\\\\Projects\\\\Magnet\\\\Publish-Setup.ps1' -Version \"1.1.3\")",
+      "PowerShell(& 'c:\\\\Users\\\\leoni\\\\OneDrive\\\\Documents\\\\Projects\\\\Magnet\\\\Publish-Setup.ps1' -Version \"1.1.5\")",
+      "PowerShell(& 'c:\\\\Users\\\\leoni\\\\OneDrive\\\\Documents\\\\Projects\\\\Magnet\\\\Publish-Store.ps1' -Version \"1.1.5.0\")",
+      "PowerShell(& 'c:\\\\Users\\\\leoni\\\\OneDrive\\\\Documents\\\\Projects\\\\Magnet\\\\Publish-Setup.ps1' -Version \"1.1.7\")",
+      "PowerShell(& 'c:\\\\Users\\\\leoni\\\\OneDrive\\\\Documents\\\\Projects\\\\Magnet\\\\Publish-Store.ps1' -Version \"1.1.7.0\")"
+    ]
+  }
+}

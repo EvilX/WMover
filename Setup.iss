@@ -1,8 +1,9 @@
 [Setup]
 AppName=WMover
-AppVersion=1.1.1
+AppVersion=1.1.7
 AppPublisher=LN
 AppCopyright=Copyright (C) 2025 LN
+MinVersion=10.0.26200
 PrivilegesRequired=lowest
 DefaultDirName={localappdata}\Programs\WMover
 DisableProgramGroupPage=yes

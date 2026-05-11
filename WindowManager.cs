@@ -17,16 +17,19 @@ internal enum WindowAction
 
 internal static class WindowManager
 {
-    public static void Apply(WindowAction action)
+    public static bool Apply(WindowAction action)
     {
         var hWnd = NativeMethods.GetForegroundWindow();
-        if (hWnd == IntPtr.Zero || IsFullscreen(hWnd) || IsTopmost(hWnd))
-            return;
+        if (hWnd == IntPtr.Zero || IsFullscreen(hWnd) || IsTopmost(hWnd) || IsElevated(hWnd))
+            return false;
+
+        // Capture work area before restoring: IsZoomed puts the window on the target
+        // monitor, but SW_RESTORE would move it back to its pre-maximize position,
+        // possibly on a different monitor.
+        var work = GetWorkArea(hWnd);
 
         if (NativeMethods.IsZoomed(hWnd))
             NativeMethods.ShowWindow(hWnd, NativeMethods.SW_RESTORE);
-
-        var work = GetWorkArea(hWnd);
         int w = work.Width, h = work.Height, x = work.Left, y = work.Top;
 
         // Invisible DWM border: SetWindowPos uses the outer rect, but the visible
@@ -74,17 +77,42 @@ internal static class WindowManager
                 (vX, vY) = (x + (w - vW) / 2, y + (h - vH) / 2);
                 break;
             default:
-                return;
+                return false;
         }
 
         // Convert visual bounds → outer window rect by adding back the border insets
         NativeMethods.SetWindowPos(hWnd, IntPtr.Zero,
             vX - bL, vY - bT, vW + bL + bR, vH + bT + bB,
             NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE);
+        return true;
     }
 
     private static bool IsTopmost(IntPtr hWnd) =>
         ((uint)NativeMethods.GetWindowLongPtr(hWnd, NativeMethods.GWL_EXSTYLE) & NativeMethods.WS_EX_TOPMOST) != 0;
+
+    private static bool IsElevated(IntPtr hWnd)
+    {
+        NativeMethods.GetWindowThreadProcessId(hWnd, out uint pid);
+        if (pid == 0) return false;
+
+        var hProc = NativeMethods.OpenProcess(NativeMethods.PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (hProc == IntPtr.Zero) return true; // access denied → elevated
+
+        try
+        {
+            if (!NativeMethods.OpenProcessToken(hProc, NativeMethods.TOKEN_QUERY, out var hToken))
+                return false;
+            try
+            {
+                uint elevated = 0, sz = sizeof(uint);
+                NativeMethods.GetTokenInformation(hToken, NativeMethods.TOKEN_ELEVATION_CLASS,
+                    ref elevated, sz, out _);
+                return elevated != 0;
+            }
+            finally { NativeMethods.CloseHandle(hToken); }
+        }
+        finally { NativeMethods.CloseHandle(hProc); }
+    }
 
     private static bool IsFullscreen(IntPtr hWnd)
     {

@@ -19,6 +19,9 @@ internal static class NativeMethods
     public const uint DWMWA_EXTENDED_FRAME_BOUNDS = 9;
     public const int  GWL_EXSTYLE    = -20;
     public const uint WS_EX_TOPMOST  = 0x00000008;
+    public const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+    public const uint TOKEN_QUERY    = 0x0008;
+    public const uint TOKEN_ELEVATION_CLASS = 20; // TokenElevation
 
     public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -97,6 +100,25 @@ internal static class NativeMethods
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
     public static extern nint GetWindowLongPtr(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
+
+    [DllImport("kernel32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool CloseHandle(IntPtr hObject);
+
+    [DllImport("advapi32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool OpenProcessToken(IntPtr hProcess, uint dwDesiredAccess, out IntPtr TokenHandle);
+
+    [DllImport("advapi32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetTokenInformation(IntPtr TokenHandle, uint TokenInformationClass,
+        ref uint TokenInformation, uint TokenInformationLength, out uint ReturnLength);
 
     [DllImport("dwmapi.dll")]
     public static extern int DwmGetWindowAttribute(
