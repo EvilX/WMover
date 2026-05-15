@@ -4,6 +4,8 @@ internal sealed class AboutForm : Form
 {
     public AboutForm()
     {
+        AutoScaleMode = AutoScaleMode.None;
+
         Text = "About WMover";
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -27,7 +29,7 @@ internal sealed class AboutForm : Form
         });
         panel.Controls.Add(new Label
         {
-            Text = "Version 1.1.7",
+            Text = "Version 1.1.9",
             AutoSize = true,
             Margin = new Padding(0, 4, 0, 0),
         });
@@ -58,5 +60,12 @@ internal sealed class AboutForm : Form
 
         Controls.Add(panel);
         Controls.Add(footer);
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        float scale = DeviceDpi / 96f;
+        Scale(new SizeF(scale, scale));
     }
 }

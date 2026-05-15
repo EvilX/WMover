@@ -20,6 +20,8 @@ internal sealed class SettingsForm : Form
             Ctrl = b.Ctrl, Shift = b.Shift, Alt = b.Alt, Win = b.Win, VkCode = b.VkCode,
         }).ToList();
 
+        AutoScaleMode = AutoScaleMode.None;
+
         Text = "WMover — Settings";
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -169,5 +171,14 @@ internal sealed class SettingsForm : Form
         CancelCapture();
         BindingsSaved?.Invoke(_bindings.AsReadOnly());
         Close();
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        float scale = DeviceDpi / 96f;
+        Scale(new SizeF(scale, scale));
+        _list.Columns[0].Width = (int)(255 * scale);
+        _list.Columns[1].Width = (int)(185 * scale);
     }
 }

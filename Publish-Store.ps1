@@ -38,7 +38,7 @@ Write-Host "`n[1/4] Publishing..." -ForegroundColor Cyan
 if (Test-Path $Layout) { Remove-Item $Layout -Recurse -Force }
 
 $env:PATH += ";C:\Program Files\dotnet"
-dotnet publish "$Root\WMover.csproj" `
+dotnet publish "$Root\src\WMover.csproj" `
     -c Release `
     -r win-x64 `
     --self-contained true `
@@ -55,7 +55,7 @@ Remove-Item (Join-Path $Layout "*.pdb") -ErrorAction SilentlyContinue
 # ── 3. Generate assets if not customised ────────────────────────────────────
 Write-Host "[2/4] Preparing assets..." -ForegroundColor Cyan
 
-$customAssets = Join-Path $Root "Package\Assets"
+$customAssets = Join-Path $Root "src\Package\Assets"
 $layoutAssets = Join-Path $Layout "Assets"
 New-Item -ItemType Directory -Force $layoutAssets | Out-Null
 
@@ -93,7 +93,7 @@ if ($customFiles.Count -gt 0) {
 # ── 4. Patch and copy manifest ───────────────────────────────────────────────
 Write-Host "[3/4] Writing manifest..." -ForegroundColor Cyan
 
-$xml = Get-Content "$Root\Package\AppxManifest.xml" -Raw
+$xml = Get-Content "$Root\src\Package\AppxManifest.xml" -Raw
 $xml = $xml -replace 'Publisher="CN=Publisher"',   "Publisher=`"$PublisherCN`""
 $xml = $xml -replace 'Version="1\.0\.0\.0"',        "Version=`"$Version`""
 $xml | Set-Content (Join-Path $Layout "AppxManifest.xml") -Encoding UTF8

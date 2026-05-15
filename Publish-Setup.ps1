@@ -14,7 +14,7 @@ Write-Host "`n[1/3] Publishing..." -ForegroundColor Cyan
 
 if (Test-Path $Layout) { Remove-Item $Layout -Recurse -Force }
 
-dotnet publish "$Root\WMover.csproj" `
+dotnet publish "$Root\src\WMover.csproj" `
     -c Release -r win-x64 --self-contained true `
     -p:PublishReadyToRun=true `
     -p:PublishTrimmed=false `

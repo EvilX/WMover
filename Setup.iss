@@ -1,6 +1,6 @@
 [Setup]
 AppName=WMover
-AppVersion=1.1.7
+AppVersion=1.1.9
 AppPublisher=LN
 AppCopyright=Copyright (C) 2025 LN
 MinVersion=10.0.26200
@@ -9,7 +9,7 @@ DefaultDirName={localappdata}\Programs\WMover
 DisableProgramGroupPage=yes
 OutputDir=bin
 OutputBaseFilename=WMover_Setup_1.1.0
-SetupIconFile=Icon.ico
+SetupIconFile=src\Icon.ico
 UninstallDisplayIcon={app}\WMover.exe
 Compression=lzma2/ultra64
 SolidCompression=yes
