@@ -29,7 +29,7 @@ internal sealed class AboutForm : Form
         });
         panel.Controls.Add(new Label
         {
-            Text = "Version 1.1.9",
+            Text = "Version 1.1.10",
             AutoSize = true,
             Margin = new Padding(0, 4, 0, 0),
         });

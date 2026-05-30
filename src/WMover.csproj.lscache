@@ -13,19 +13,9 @@ primary
 lastDtbSucceeded
 
 [properties]
-AssemblyName=WMover
-CommandLineArgsForDesignTimeEvaluation=-langversion:12.0 -define:TRACE
-CompilerGeneratedFilesOutputPath=
-MaxSupportedLangVersion=12.0
-ProjectAssetsFile=<PATH>obj/project.assets.json
-RootNamespace=WMover
-RunAnalyzers=
-RunAnalyzersDuringLiveAnalysis=
-SolutionPath=<PATH>../Magnet.sln
-TargetFrameworkIdentifier=.NETCoreApp
-TargetPath=<PATH>bin/Debug/net8.0-windows/WMover.dll
-TargetRefPath=<PATH>obj/Debug/net8.0-windows/ref/WMover.dll
-TemporaryDependencyNodeTargetIdentifier=net8.0-windows
+TargetPath=<PATH>bin/Debug/net8.0-windows10.0.17763.0/WMover.dll
+TargetRefPath=<PATH>obj/Debug/net8.0-windows10.0.17763.0/ref/WMover.dll
+TemporaryDependencyNodeTargetIdentifier=net8.0-windows10.0.17763.0
 
 [commandLineArguments]
 /noconfig
@@ -36,15 +26,15 @@ TemporaryDependencyNodeTargetIdentifier=net8.0-windows
 /nostdlib+
 /errorreport:prompt
 /warn:8
-/define:TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
+/define:TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS10_0_17763_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS10_0_17763_0_OR_GREATER;WINDOWS8_0_OR_GREATER;WINDOWS7_0_OR_GREATER
 /highentropyva+
 /nullable:enable
 /debug+
 /debug:portable
 /filealign:512
 /optimize-
-/out:obj\Debug\net8.0-windows\WMover.dll
-/refout:obj\Debug\net8.0-windows\refint\WMover.dll
+/out:obj\Debug\net8.0-windows10.0.17763.0\WMover.dll
+/refout:obj\Debug\net8.0-windows10.0.17763.0\refint\WMover.dll
 /target:winexe
 /warnaserror-
 /utf8output
@@ -60,7 +50,7 @@ HelpForm.cs
 HotkeyBinding.cs
 MainForm.cs
 NativeMethods.cs
-obj/Debug/net8.0-windows/
+obj/Debug/net8.0-windows10.0.17763.0/
  .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
  WMover.AssemblyInfo.cs
  WMover.GlobalUsings.g.cs
@@ -259,6 +249,9 @@ WindowManager.cs
  System.Windows.Forms.Design.Editors.dll
  System.Windows.Forms.dll
  System.Windows.Forms.Primitives.dll
+<NUGET>/microsoft.windows.sdk.net.ref/10.0.17763.56/lib/net8.0/
+ Microsoft.Windows.SDK.NET.dll
+ WinRT.Runtime.dll
 
 [analyzerReferences]
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/8.0.27/analyzers/dotnet/cs/
@@ -274,7 +267,8 @@ WindowManager.cs
 <DOTNET>/sdk/8.0.421/Sdks/Microsoft.NET.Sdk/analyzers/
  Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
  Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/microsoft.windows.sdk.net.ref/10.0.17763.56/analyzers/dotnet/cs/WinRT.SourceGenerator.dll
 
 [analyzerConfigFiles]
 <DOTNET>/sdk/8.0.421/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_8_default.globalconfig
-obj/Debug/net8.0-windows/WMover.GeneratedMSBuildEditorConfig.editorconfig
+obj/Debug/net8.0-windows10.0.17763.0/WMover.GeneratedMSBuildEditorConfig.editorconfig

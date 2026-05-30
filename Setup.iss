@@ -1,6 +1,6 @@
 [Setup]
 AppName=WMover
-AppVersion=1.1.9
+AppVersion=1.1.10
 AppPublisher=LN
 AppCopyright=Copyright (C) 2025 LN
 MinVersion=10.0.26200
