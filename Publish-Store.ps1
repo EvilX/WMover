@@ -4,7 +4,7 @@
     Builds WMover and packages it as an MSIX for Microsoft Store submission.
 
 .PARAMETER Version
-    Package version in X.Y.Z.0 format (default: 1.0.0.0).
+    Package version in X.Y.Z.0 format. Defaults to <Version> from src\WMover.csproj + ".0".
 
 .PARAMETER PublisherCN
     Publisher identity CN from Microsoft Partner Center.
@@ -16,21 +16,35 @@
     .\Publish-Store.ps1 -Version 1.2.0.0 -PublisherCN "CN=Your-Partner-Center-CN"
 #>
 param(
-    [string]$Version = "1.1.0.0",
+    [string]$Version,
     [string]$PublisherCN = "CN=E6AE4792-1CF2-4206-9D79-A11A16CD8C6A"
 )
 
 $ErrorActionPreference = "Stop"
 
 $Root    = $PSScriptRoot
+$Project = Join-Path $Root "src\WMover.csproj"
+
+if (-not $Version) {
+    $v = ([xml](Get-Content $Project -Raw)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+    $Version = "$v.0"
+}
+# Store requires X.Y.Z.0 (revision must be 0)
+if ($Version -notmatch '^\d+\.\d+\.\d+\.0$') { throw "Version must be X.Y.Z.0, got '$Version'." }
+$AppVersion = $Version -replace '\.0$', ''
+Write-Host "Version: $Version" -ForegroundColor Cyan
+
 $Layout  = Join-Path $Root "bin\StoreLayout"
 $Output  = Join-Path $Root "bin\WMover_$($Version -replace '\.','_').msix"
-$MakeAppx = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\makeappx.exe"
+# makeappx.exe: newest Windows 10/11 SDK installed (x64 tools)
+$MakeAppx = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\10.*\x64\makeappx.exe" -ErrorAction SilentlyContinue |
+    Sort-Object { [version]$_.Directory.Parent.Name } -Descending | Select-Object -First 1 -ExpandProperty FullName
 
 # ── 1. Validate tools ────────────────────────────────────────────────────────
-if (-not (Test-Path $MakeAppx)) {
-    throw "makeappx.exe not found at: $MakeAppx`nInstall Windows SDK 10.0.22621."
+if (-not $MakeAppx) {
+    throw "makeappx.exe not found. Install the Windows 10/11 SDK (10.0.22621 or newer)."
 }
+Write-Host "makeappx: $MakeAppx" -ForegroundColor DarkGray
 
 # ── 2. Publish .NET app ──────────────────────────────────────────────────────
 Write-Host "`n[1/4] Publishing..." -ForegroundColor Cyan
@@ -38,12 +52,13 @@ Write-Host "`n[1/4] Publishing..." -ForegroundColor Cyan
 if (Test-Path $Layout) { Remove-Item $Layout -Recurse -Force }
 
 $env:PATH += ";C:\Program Files\dotnet"
-dotnet publish "$Root\src\WMover.csproj" `
+dotnet publish $Project `
     -c Release `
     -r win-x64 `
     --self-contained true `
     -p:PublishReadyToRun=false `
     -p:PublishTrimmed=false `
+    -p:Version=$AppVersion `
     -o $Layout `
     --nologo
 
@@ -95,7 +110,8 @@ Write-Host "[3/4] Writing manifest..." -ForegroundColor Cyan
 
 $xml = Get-Content "$Root\src\Package\AppxManifest.xml" -Raw
 $xml = $xml -replace 'Publisher="CN=Publisher"',   "Publisher=`"$PublisherCN`""
-$xml = $xml -replace 'Version="1\.0\.0\.0"',        "Version=`"$Version`""
+$xml = $xml -replace '(<Identity\b[^>]*?\sVersion=")[^"]*"', "`${1}$Version`""
+if ($xml -notmatch "<Identity\b[^>]*?\sVersion=`"$([regex]::Escape($Version))`"") { throw "Failed to patch Identity Version in AppxManifest.xml." }
 $xml | Set-Content (Join-Path $Layout "AppxManifest.xml") -Encoding UTF8
 
 # ── 5. Pack MSIX ────────────────────────────────────────────────────────────

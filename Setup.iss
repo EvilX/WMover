@@ -1,6 +1,17 @@
+; Version is passed by Publish-Setup.ps1 (ISCC /DAppVer=X.Y.Z).
+; When compiled directly, it is read from the published exe.
+#ifndef AppVer
+  #define VerMajor
+  #define VerMinor
+  #define VerRev
+  #define VerBuild
+  #expr GetVersionComponents(AddBackslash(SourcePath) + "bin\SetupLayout\WMover.exe", VerMajor, VerMinor, VerRev, VerBuild)
+  #define AppVer Str(VerMajor) + "." + Str(VerMinor) + "." + Str(VerRev)
+#endif
+
 [Setup]
 AppName=WMover
-AppVersion=1.1.10
+AppVersion={#AppVer}
 AppPublisher=LN
 AppCopyright=Copyright (C) 2025 LN
 MinVersion=10.0.26200
@@ -8,7 +19,7 @@ PrivilegesRequired=lowest
 DefaultDirName={localappdata}\Programs\WMover
 DisableProgramGroupPage=yes
 OutputDir=bin
-OutputBaseFilename=WMover_Setup_1.1.0
+OutputBaseFilename=WMover_Setup_{#StringChange(AppVer, ".", "_")}
 SetupIconFile=src\Icon.ico
 UninstallDisplayIcon={app}\WMover.exe
 Compression=lzma2/ultra64

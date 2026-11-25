@@ -8,5 +8,7 @@
     <AssemblyName>WMover</AssemblyName>
     <RootNamespace>WMover</RootNamespace>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <!-- Single source of the app version. Publish-Setup.ps1 / Publish-Store.ps1 read it from here. -->
+    <Version>1.1.10</Version>
   </PropertyGroup>
 </Project>
