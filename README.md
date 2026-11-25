@@ -2,7 +2,13 @@
   <img src="src/Package/Assets/Square44x44Logo.targetsize-256.png" width="96" height="96" alt="WMover icon">
 </p>
 
-# WMover
+<h1 align="center">WMover</h1>
+
+<p align="center">
+  <a href="https://github.com/EvilX/WMover/releases/latest"><img src="https://img.shields.io/github/v/release/EvilX/WMover?label=latest%20release" alt="Latest release"></a>
+  <a href="https://apps.microsoft.com/store/detail/9NKWN112GR1Q?cid=DevShareMCLPCS"><img src="https://img.shields.io/badge/Microsoft%20Store-get%20it-0078D4?logo=microsoft" alt="Microsoft Store"></a>
+  <a href="https://github.com/sponsors/EvilX"><img src="https://img.shields.io/github/sponsors/EvilX?label=sponsor&logo=githubsponsors&color=EA4AAA" alt="Sponsor"></a>
+</p>
 
 WMover is a small Windows 11 tray utility that instantly resizes and moves the active window
 to fixed layouts (halves, thirds, two-thirds, center) using global keyboard shortcuts.
@@ -18,7 +24,7 @@ to fixed layouts (halves, thirds, two-thirds, center) using global keyboard shor
 ## Install
 
 - **Microsoft Store:** [WMover on the Microsoft Store](https://apps.microsoft.com/store/detail/9NKWN112GR1Q?cid=DevShareMCLPCS)
-- **Installer:** download `WMover_Setup_X_Y_Z.exe` from [GitHub Releases](https://github.com/EvilX/WMover/releases)
+- **Installer:** download `WMover_Setup_X_Y_Z.exe` from the [latest release](https://github.com/EvilX/WMover/releases/latest)
   (per-user install, no admin rights required).
 
 Requires Windows 11 (build 26200 or newer).
@@ -136,3 +142,8 @@ the MSIX manifest.
 
 The installer and MSIX are not code-signed: Windows SmartScreen will warn on `Setup.exe`, and the
 `.msix` is meant for Store submission (Partner Center signs it), not for sideloading.
+
+
+## Support
+
+If WMover saves you time, consider [sponsoring the project](https://github.com/sponsors/EvilX).
